@@ -1,0 +1,57 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: demo
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: demo.argocd.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: demo
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo
+spec:
+  selector:
+    app: demo
+  ports:
+  - port: 80
+    targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo
+spec:
+  selector:
+    matchLabels:
+      app: demo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: demo
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 500m
+            memory: 256Mi
+          limits:
+            cpu: 1500m
+            memory: 1.5Gi
+        
